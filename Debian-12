@@ -1,0 +1,47 @@
+# Build stage
+FROM debian:stable AS builder
+
+LABEL maintainer="Matt Campbell <mcampbell@coreweave.com>"
+
+ARG MOD_ZIP_VERSION=8e65b82c82c7890f67a6107271c127e9881b6313
+ARG NGINX_VERSION=1.22.1
+ARG build_dir="/usr/share/tmp"
+ARG nginx_module_dir="/usr/local/nginx/modules/"
+
+# Setup
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+  ca-certificates \
+  wget \
+  git \
+  build-essential \
+  libpcre3-dev \
+  zlib1g-dev \
+  libzstd-dev
+RUN mkdir -p ${build_dir}
+
+# Download NGINX
+RUN cd ${build_dir} \
+  && wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+  && tar zxf nginx-${NGINX_VERSION}.tar.gz \
+  && rm nginx-${NGINX_VERSION}.tar.gz
+
+# Download Modules
+RUN cd ${build_dir} \
+  && git clone --recursive https://github.com/evanmiller/mod_zip mod_zip \
+    && cd mod_zip \
+    && git checkout $MOD_ZIP_VERSION
+
+# Install modules
+RUN cd ${build_dir}/nginx-${NGINX_VERSION} \
+  && ./configure --with-compat \
+  --add-dynamic-module=../mod_zip \
+  && make && make install
+
+# Create output directory and copy the module to it
+RUN mkdir -p /output && ls -la ${nginx_module_dir}/ngx_http_zip_module.so  && cp ${nginx_module_dir}/ngx_http_zip_module.so /output/
+
+
+
+USER root
+
