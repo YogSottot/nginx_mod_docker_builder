@@ -1,0 +1,5 @@
+libnginx-http-ntlm-module (1.19.3-amd64.debian12~1.gbp3da77b0) unstable; urgency=medium
+
+* Bugfix: Nginx not responding and use 100% cpu #2
+
+ -- Gabriel Hodoroaga <gabihodoroaga@gmail.com>  Mon, 21 Jun 2021 12:56:11 +0100

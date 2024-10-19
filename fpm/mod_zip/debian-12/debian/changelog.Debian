@@ -1,0 +1,12 @@
+libnginx-http-zip-module (1.3.0-amd64.debian12~1.gbp8e65b82) unstable; urgency=medium
+
+* Bugfix: Excessive memory usage with large input #67 #94
+* Bugfix: Fix stalled SSL connections #44 #103 #105
+* Bugfix: Compatibility with nginx 1.23.0+ #93
+* Bugfix: Fix for crc calculation on upstream subrequest #111
+* Feature: Support for empty directories #86
+* Feature: Pass credentials in subrequests #87
+
+ -- Evan Miller <emmiller@gmail.com>  Mon, 20 Feb 2023 12:56:11 +0100
+
+
