@@ -9,7 +9,8 @@ Modules will be built for standard versions of nginx from the distributions own 
 For ```debian-12``` — ```nginx 1.22.1```  
 For ```ubuntu 24.04``` — ```nginx 1.24.0```  
 
-The result of building is placed in the directory ```module_ubuntu-24.04.sh```
- or ```module_debian12.sh```  
+The result of building is placed in the directory ```fpm/${mod_name}/${os_version}```  
+
 
 Copy the module to the server in the ```/etc/nginx/modules-available/``` directory and place the ```50-mod-*.conf``` file in ```/etc/nginx/modules-enabled```
+or install deb packages or setup repo with this packages https://yogsottot.github.io/ppa/  
