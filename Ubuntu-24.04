@@ -5,19 +5,23 @@ LABEL maintainer="Matt Campbell <mcampbell@coreweave.com>"
 
 ARG MOD_ZIP_VERSION=8e65b82c82c7890f67a6107271c127e9881b6313
 ARG MOD_NTLM_VERSION=3da77b0cb30e517dfee01d7e7f7d649144d24051
+ARG MOD_ZSTD_VERSION=f4ba115e0b0eaecde545e5f37db6aa18917d8f4b
+ARG ZSTD_VERSION=1.5.6
 ARG NGINX_VERSION=1.24.0
 ARG build_dir="/usr/share/tmp"
 ARG nginx_module_dir="/usr/local/nginx/modules/"
 
 # Setup
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
   ca-certificates \
   wget \
   git \
   build-essential \
   libpcre3-dev \
   zlib1g-dev \
-  libzstd-dev
+  liblzma-dev \
+  liblz4-dev
+  #libzstd-dev
 RUN mkdir -p ${build_dir}
 
 # Download NGINX
@@ -38,11 +42,26 @@ RUN cd ${build_dir} \
     && cd mod_ntlm \
     && git checkout $MOD_NTLM_VERSION
 
+# Download zstd Modules
+RUN cd ${build_dir} \
+  && git clone --depth 1 --recursive https://github.com/tokers/zstd-nginx-module mod_zstd \
+    && cd mod_zstd \
+    && git checkout $MOD_ZSTD_VERSION
+
+# Install zstd
+RUN cd /opt/ && \
+  wget https://github.com/facebook/zstd/releases/download/v${ZSTD_VERSION}/zstd-${ZSTD_VERSION}.tar.gz && \
+  tar xfz zstd-${ZSTD_VERSION}.tar.gz && \
+  cd zstd-${ZSTD_VERSION} && \
+  CFLAGS="-O3 -fPIC" make && \
+  make install
+
 # Install modules
 RUN cd ${build_dir}/nginx-${NGINX_VERSION} \
   && ./configure --with-compat \
   --add-dynamic-module=../mod_zip \
   --add-dynamic-module=../mod_ntlm \
+  --add-dynamic-module=../mod_zstd \
   && make && make install
 
 USER root
