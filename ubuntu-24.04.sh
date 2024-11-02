@@ -25,7 +25,7 @@ fpm \
   --license bsd3 \
   --version 1.3.0-1.gbp8e65b82~noble \
   --architecture amd64 \
-  --depends "nginx-abi-1.22.1-7, libc6 (>= 2.4)" \
+  --depends "nginx-abi-1.24.0-1, libc6 (>= 2.17)" \
   --description "mod_zip assembles ZIP archives dynamically. It can stream component files from upstream servers with nginx's native proxying code, so that the process never takes up more than a few KB of RAM at a time, even while assembling archives that are (potentially) gigabytes in size." \
   --url "https://github.com/evanmiller/mod_zip" \
   --maintainer "YogSottot  <7411302+YogSottot@users.noreply.github.com>" \
@@ -46,7 +46,7 @@ fpm \
   --license bsd3 \
   --version 1.19.3-1.gbp3da77b0~noble \
   --architecture amd64 \
-  --depends "nginx-abi-1.22.1-7, libc6 (>= 2.4)" \
+  --depends "nginx-abi-1.24.0-1, libc6 (>= 2.17)" \
   --description "The NTLM module allows proxying requests with NTLM Authentication. The upstream connection is bound to the client connection once the client sends a request with the "Authorization" header field value starting with "Negotiate" or "NTLM". Further client requests will be proxied through the same upstream connection, keeping the authentication context." \
   --maintainer "YogSottot  <7411302+YogSottot@users.noreply.github.com>" \
   --url "https://github.com/gabihodoroaga/nginx-ntlm-module" \
@@ -67,7 +67,7 @@ fpm \
   --license bsd3 \
   --version 0.1.1-1.gbpf4ba115~noble \
   --architecture amd64 \
-  --depends "nginx-abi-1.22.1-7, libc6 (>= 2.4)" \
+  --depends "nginx-abi-1.24.0-1, libc6 (>= 2.17)" \
   --description "NGINX module for ZSTD compression" \
   --maintainer "YogSottot  <7411302+YogSottot@users.noreply.github.com>" \
   --url "https://github.com/tokers/zstd-nginx-module" \
