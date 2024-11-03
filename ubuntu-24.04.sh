@@ -12,7 +12,7 @@ docker cp "${id}":/usr/local/nginx/modules/ngx_http_zip_module.so fpm/mod_zip/no
 docker cp "${id}":/usr/local/nginx/modules/ngx_http_upstream_ntlm_module.so fpm/mod_ntlm/noble/usr/lib/nginx/modules/ && \
 # zstd
 docker cp "${id}":/usr/local/nginx/modules/ngx_http_zstd_filter_module.so fpm/mod_zstd/noble/usr/lib/nginx/modules/ && \
-docker cp "${id}":/usr/local/nginx/modules/ngx_http_zstd_filter_module.so fpm/mod_zstd/noble/usr/lib/nginx/modules/ && \
+docker cp "${id}":/usr/local/nginx/modules/ngx_http_zstd_static_module.so fpm/mod_zstd/noble/usr/lib/nginx/modules/ && \
 # delete image and container
 docker rm -v "${id}" && \
 docker image rm nginx_mod_docker_build && \
