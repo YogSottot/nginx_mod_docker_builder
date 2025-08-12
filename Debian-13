@@ -1,0 +1,76 @@
+# Build stage
+FROM debian:trixie-slim AS builder
+
+LABEL maintainer="Matt Campbell <mcampbell@coreweave.com>"
+
+ARG MOD_ZIP_VERSION=8e65b82c82c7890f67a6107271c127e9881b6313
+ARG MOD_NTLM_VERSION=3da77b0cb30e517dfee01d7e7f7d649144d24051
+ARG MOD_ZSTD_VERSION=057a7d339af1111d04b5a9ac5ae9b0250d17cd94
+ARG ZSTD_VERSION=1.5.7
+ARG NGINX_VERSION=1.26.3
+ARG OPENSSL_VERSION=3.5.1
+ARG build_dir="/usr/share/tmp"
+ARG nginx_module_dir="/usr/local/nginx/modules/"
+
+# Setup
+RUN apt update && apt install -y --no-install-recommends \
+  ca-certificates \
+  wget \
+  git \
+  build-essential \
+  libpcre2-dev \
+  zlib1g-dev \
+  liblzma-dev \
+  liblz4-dev \
+  libzip-dev \
+  unzip \
+  uuid-dev
+  #libzstd-dev
+RUN mkdir -p ${build_dir}
+
+# Download NGINX
+RUN cd ${build_dir} \
+  && wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+  && tar zxf nginx-${NGINX_VERSION}.tar.gz \
+  && rm nginx-${NGINX_VERSION}.tar.gz
+
+# Download openssl
+# RUN  cd ${build_dir} \
+#  && git clone --depth 1 -b openssl-${OPENSSL_VERSION} https://github.com/openssl/openssl openssl
+
+# Download Zip Modules
+RUN cd ${build_dir} \
+  && git clone --depth 1 --recursive https://github.com/evanmiller/mod_zip mod_zip \
+    && cd mod_zip \
+    && git checkout $MOD_ZIP_VERSION
+
+# Download NTLM Modules
+RUN cd ${build_dir} \
+  && git clone --depth 1 --recursive https://github.com/gabihodoroaga/nginx-ntlm-module mod_ntlm \
+    && cd mod_ntlm \
+    && git checkout $MOD_NTLM_VERSION
+
+# Download zstd Modules
+RUN cd ${build_dir} \
+  && git clone --depth 1 --recursive https://github.com/tokers/zstd-nginx-module mod_zstd \
+    && cd mod_zstd \
+    && git checkout $MOD_ZSTD_VERSION
+
+# Install zstd
+RUN cd /opt/ && \
+  wget https://github.com/facebook/zstd/releases/download/v${ZSTD_VERSION}/zstd-${ZSTD_VERSION}.tar.gz && \
+  tar xfz zstd-${ZSTD_VERSION}.tar.gz && \
+  cd zstd-${ZSTD_VERSION} && \
+  CFLAGS="-O3 -fPIC" make && \
+  make install
+
+# Install modules
+RUN cd ${build_dir}/nginx-${NGINX_VERSION} \
+  && ./configure --with-compat \
+  --add-dynamic-module=../mod_zip \
+  --add-dynamic-module=../mod_ntlm \
+  --add-dynamic-module=../mod_zstd \
+#  --with-openssl=../openssl \
+  && make && make install
+
+USER root
