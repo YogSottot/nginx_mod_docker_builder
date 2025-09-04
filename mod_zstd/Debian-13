@@ -1,14 +1,12 @@
 # Build stage
-FROM debian:12 AS builder
+FROM debian:trixie-slim AS builder
 
 LABEL maintainer="Matt Campbell <mcampbell@coreweave.com>"
 
-ARG MOD_ZIP_VERSION=8e65b82c82c7890f67a6107271c127e9881b6313
-ARG MOD_NTLM_VERSION=3da77b0cb30e517dfee01d7e7f7d649144d24051
-ARG MOD_ZSTD_VERSION=f4ba115e0b0eaecde545e5f37db6aa18917d8f4b
-ARG ZSTD_VERSION=1.5.6
-ARG NGINX_VERSION=1.22.1
-ARG OPENSSL_VERSION=3.0.8
+ARG MOD_ZSTD_VERSION=057a7d339af1111d04b5a9ac5ae9b0250d17cd94
+ARG ZSTD_VERSION=1.5.7
+ARG NGINX_VERSION=1.26.3
+ARG OPENSSL_VERSION=3.5.1
 ARG build_dir="/usr/share/tmp"
 ARG nginx_module_dir="/usr/local/nginx/modules/"
 
@@ -18,7 +16,7 @@ RUN apt update && apt install -y --no-install-recommends \
   wget \
   git \
   build-essential \
-  libpcre3-dev \
+  libpcre2-dev \
   zlib1g-dev \
   liblzma-dev \
   liblz4-dev \
@@ -38,21 +36,9 @@ RUN cd ${build_dir} \
 # RUN  cd ${build_dir} \
 #  && git clone --depth 1 -b openssl-${OPENSSL_VERSION} https://github.com/openssl/openssl openssl
 
-# Download Zip Modules
-RUN cd ${build_dir} \
-  && git clone --depth 1 --recursive https://github.com/evanmiller/mod_zip mod_zip \
-    && cd mod_zip \
-    && git checkout $MOD_ZIP_VERSION
-
-# Download NTLM Modules
-RUN cd ${build_dir} \
-  && git clone --depth 1 --recursive https://github.com/gabihodoroaga/nginx-ntlm-module mod_ntlm \
-    && cd mod_ntlm \
-    && git checkout $MOD_NTLM_VERSION
-
 # Download zstd Modules
 RUN cd ${build_dir} \
-  && git clone --depth 1 --recursive https://github.com/tokers/zstd-nginx-module mod_zstd \
+  && git clone --depth 2 --recursive https://github.com/tokers/zstd-nginx-module mod_zstd \
     && cd mod_zstd \
     && git checkout $MOD_ZSTD_VERSION
 
@@ -67,8 +53,6 @@ RUN cd /opt/ && \
 # Install modules
 RUN cd ${build_dir}/nginx-${NGINX_VERSION} \
   && ./configure --with-compat \
-  --add-dynamic-module=../mod_zip \
-  --add-dynamic-module=../mod_ntlm \
   --add-dynamic-module=../mod_zstd \
 #  --with-openssl=../openssl \
   && make && make install

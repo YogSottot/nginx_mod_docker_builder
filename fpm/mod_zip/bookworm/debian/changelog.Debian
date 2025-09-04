@@ -9,4 +9,8 @@ libnginx-http-zip-module (1.3.0-amd64.debian12~1.gbp8e65b82) unstable; urgency=m
 
  -- Evan Miller <emmiller@gmail.com>  Mon, 20 Feb 2023 12:56:11 +0100
 
+libnginx-http-zip-module (1.3.0-amd64.debian12~2.gbp4aa963c) unstable; urgency=medium
 
+* Bugfix: Explicitly define filters chain order, with modules which need to execute before and after mod_zip #90
+
+ -- Anthony Ryan  <anthonyryan1@gmail.com>  Wed, 3 Sep 2025 16:54:10 -0400

@@ -1,0 +1,51 @@
+# Build stage
+FROM debian:trixie-slim AS builder
+
+LABEL maintainer="Matt Campbell <mcampbell@coreweave.com>"
+
+ARG MOD_NTLM_VERSION=3da77b0cb30e517dfee01d7e7f7d649144d24051
+ARG NGINX_VERSION=1.26.3
+ARG OPENSSL_VERSION=3.5.1
+ARG build_dir="/usr/share/tmp"
+ARG nginx_module_dir="/usr/local/nginx/modules/"
+
+# Setup
+RUN apt update && apt install -y --no-install-recommends \
+  ca-certificates \
+  wget \
+  git \
+  build-essential \
+  libpcre2-dev \
+  zlib1g-dev \
+  liblzma-dev \
+  liblz4-dev \
+  libzip-dev \
+  unzip \
+  uuid-dev
+  #libzstd-dev
+RUN mkdir -p ${build_dir}
+
+# Download NGINX
+RUN cd ${build_dir} \
+  && wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+  && tar zxf nginx-${NGINX_VERSION}.tar.gz \
+  && rm nginx-${NGINX_VERSION}.tar.gz
+
+# Download openssl
+# RUN  cd ${build_dir} \
+#  && git clone --depth 1 -b openssl-${OPENSSL_VERSION} https://github.com/openssl/openssl openssl
+
+# Download NTLM Modules
+RUN cd ${build_dir} \
+  && git clone --depth 1 --recursive https://github.com/gabihodoroaga/nginx-ntlm-module mod_ntlm \
+    && cd mod_ntlm \
+    && git checkout $MOD_NTLM_VERSION
+
+# Install modules
+RUN cd ${build_dir}/nginx-${NGINX_VERSION} \
+  && ./configure --with-compat \
+  --add-dynamic-module=../mod_ntlm \
+#  --with-openssl=../openssl \
+  && make && make install
+
+USER root
