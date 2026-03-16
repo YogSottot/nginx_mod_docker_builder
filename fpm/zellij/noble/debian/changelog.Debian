@@ -1,0 +1,12 @@
+zellij (0.43.1) unstable; urgency=medium
+
+    fix: pane rename backspace regression by @imsnif (#4346)
+    fix: Zellij Web login issue with safari by @imsnif (#4345)
+    fix: terminal title regression by @imsnif (#4352)
+    fix: resurrection listing regression by @imsnif (#4354)
+    fix: tooltip keybinding backgrounds by @imsnif (#4356)
+    fix: default to session name for window/tab title in Zellij Web by @imsnif (#4357)
+    fix: handle omitted flags in the push sequence of the KKP by @2asoft (#4334)
+
+
+ -- Aram Drevekenin <aram@poor.dev>  Mon, 8 Aug, 2025 15:55:00 +0300

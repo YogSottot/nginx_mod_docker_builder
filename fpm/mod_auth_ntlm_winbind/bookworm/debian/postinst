@@ -1,0 +1,58 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_apache2/UNDECLARED
+if true; then
+	if [ -e /usr/share/apache2/apache2-maintscript-helper ] ; then
+		. /usr/share/apache2/apache2-maintscript-helper
+		for conf in auth_ntlm_winbind  ; do
+			apache2_invoke enmod $conf  || exit 1
+		done
+	fi
+fi
+# End automatically added section
+
+# Only add www-data to winbindd_priv if both exist
+# Helper: safely add or remove a user from a group with syslog logging
+# Usage: manage_user_group <add|remove> <user> <group>
+manage_user_group() {
+    action="$1"
+    user="$2"
+    group="$3"
+
+    # Ensure both user and group exist
+    if ! getent passwd "$user" >/dev/null 2>&1; then
+        logger -t maintscript "User '$user' does not exist, skipping $action $group"
+        return 0
+    fi
+    if ! getent group "$group" >/dev/null 2>&1; then
+        logger -t maintscript "Group '$group' does not exist, skipping $action $user"
+        return 0
+    fi
+
+    case "$action" in
+        add)
+            if ! id -nG "$user" | grep -qw "$group"; then
+                adduser --quiet "$user" "$group" >/dev/null 2>&1 || true
+                logger -t maintscript "Added user '$user' to group '$group'"
+            else
+                logger -t maintscript "User '$user' already in group '$group', skipping"
+            fi
+            ;;
+        remove)
+            if id -nG "$user" | grep -qw "$group"; then
+                deluser --quiet "$user" "$group" >/dev/null 2>&1 || true
+                logger -t maintscript "Removed user '$user' from group '$group'"
+            else
+                logger -t maintscript "User '$user' not in group '$group', skipping"
+            fi
+            ;;
+        *)
+            logger -t maintscript "Unknown action '$action' for user '$user' and group '$group'"
+            return 1
+            ;;
+    esac
+}
+
+# Example usage:
+manage_user_group add www-data winbindd_priv
+

@@ -1,0 +1,37 @@
+This package was originally created by Jelmer Vernooij <jelmer@samba.org> on
+Sat, 8 Apr 2006 14:30:13 +0100, but not uploaded to Debian.  Olly Betts
+<olly@survex.com> updated it on 2010-01-19 and uploaded it to Debian.
+
+It was downloaded from SVN at
+svn://svn.samba.org/lorikeet/trunk/mod_auth_ntlm_winbind
+
+Copyright:
+
+  Copyright Andreas Gal <agal@uwsp.edu>, 2000
+  Copyright Sverre H. Huseby <sverrehu@online.no>, 2000
+  Copyright Tim Potter <tpot@samba.org>, 2001
+  Copyright Andrew Bartlett <abartlet@samba.org>, 2004
+  Copyright Ronan Waider <waider@waider.ie>, 2006
+  Copyright Tim Costello <tim.costello@bigfoot.com> (Based partially on mod_ntlm.c for Win32)
+  Copyright Dave Airlie <Dave.Airlie@ul.ie> (Based partially on pam_smb)
+  Copyright The Apache Software Foundation, 1999-2004 (CGI fork code)
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+On Debian systems, the complete text of the Apache License Version 2.0
+can be found in /usr/share/common-licenses/Apache-2.0
+
+The Debian packaging is licensed under the same terms as upstream and is:
+
+  Copyright (C) Jelmer Vernooij 2006
+  Copyright (C) Olly Betts 2011,2012,2013
