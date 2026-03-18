@@ -1,4 +1,7 @@
 /module_*
 *.deb
 /.history/
-
+/fpm/
+rpmbuild
+/deb/
+/rpm/
