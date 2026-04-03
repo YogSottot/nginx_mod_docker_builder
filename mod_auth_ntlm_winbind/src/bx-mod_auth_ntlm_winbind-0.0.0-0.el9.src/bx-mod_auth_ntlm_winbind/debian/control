@@ -1,0 +1,19 @@
+Source: apache-mod-ntlm-winbind
+Section: web
+Priority: optional
+Maintainer: Jelmer Vernooij <jelmer@samba.org>
+Build-Depends: debhelper (>= 5.0.0), apache-dev, apache2-threaded-dev, apache2
+Standards-Version: 3.6.2
+
+Package: libapache-mod-auth-ntlm-winbind
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, apache-common, winbind
+Description: apache module for NTLM authentication against Winbind
+ An apache module for authenticating users against Winbind using NTLM.
+
+Package: libapache2-mod-auth-ntlm-winbind
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, apache2-common, winbind
+Description: apache2 module for NTLM authentication against Winbind
+ An apache2 module for authenticating users against Winbind using NTLM.
+   

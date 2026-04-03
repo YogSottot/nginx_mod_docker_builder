@@ -1,0 +1,10 @@
+Andreas Gal <agal@uwsp.edu>
+Sverre H. Huseby <sverrehu@online.no>
+Tim Potter <tpot@samba.org>
+Andrew Bartlett <abartlet@samba.org>
+
+Apache2 code by Waider <waider@waider.ie>
+ 
+Based partially on:
+ mod_ntlm.c for Win32 by Tim Costello <tim.costello@bigfoot.com>
+ pam_smb by Dave Airlie <Dave.Airlie@ul.ie>
