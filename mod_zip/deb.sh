@@ -22,7 +22,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-for suffix in DISTRO VERSION_CODENAME NGINX_VERSION NGINX_ABI LIBC_DEPENDS BUILD_DEPS; do
+for suffix in DISTRO VERSION_CODENAME LIBC_DEPENDS BUILD_DEPS; do
     var_name="${TARGET}_${suffix}"
     value="${!var_name:-}"
     if [ -z "${value}" ]; then
@@ -40,33 +40,54 @@ MODULES_AVAILABLE_DIR="${STAGE_DIR}/usr/share/nginx/modules-available"
 DEBIAN_DIR="${STAGE_DIR}/debian"
 HOOKS_SOURCE_DIR="${REPO_ROOT}/fpm/${PACKAGE_NAME}/${VERSION_CODENAME}/debian"
 CONFS_SOURCE_DIR="${REPO_ROOT}/fpm/${PACKAGE_NAME}/${VERSION_CODENAME}/usr/share/nginx/modules-available"
+BUILD_IMAGE="${DOCKER_IMAGE}:${VERSION_CODENAME}"
+BUILD_METADATA_DIR="/usr/share/tmp"
 
 rm -rf "${STAGE_DIR}"
 mkdir -p "${OUTPUT_DIR}"
 mkdir -p "${DOC_DIR}" "${MODULES_DIR}" "${MODULES_AVAILABLE_DIR}" "${DEBIAN_DIR}"
 
 docker build \
-  --tag "${DOCKER_IMAGE}" \
+  --tag "${BUILD_IMAGE}" \
   --file "${SCRIPT_DIR}/Dockerfile" \
   --build-arg "BASE_IMAGE=${BASE_IMAGE}" \
   --build-arg "MAINTAINER=${MAINTAINER}" \
   --build-arg "SOURCE_REPO_URL=${SOURCE_REPO_URL}" \
   --build-arg "SOURCE_DIR=${SOURCE_DIR}" \
   --build-arg "MOD_ZIP_VERSION=${MOD_ZIP_VERSION}" \
-  --build-arg "NGINX_VERSION=${NGINX_VERSION}" \
   --build-arg "BUILD_DEPS=${BUILD_DEPS}" \
   "${SCRIPT_DIR}"
 
-container_id="$(docker create "${DOCKER_IMAGE}")"
+container_id="$(docker create "${BUILD_IMAGE}")"
+metadata_dir="$(mktemp -d)"
 cleanup() {
     if [ -n "${container_id:-}" ]; then
         docker rm -v "${container_id}" >/dev/null
     fi
-    docker image rm -f "${DOCKER_IMAGE}" >/dev/null
+    if [ -n "${metadata_dir:-}" ] && [ -d "${metadata_dir}" ]; then
+        rm -rf "${metadata_dir}"
+    fi
+    docker image rm -f "${BUILD_IMAGE}" >/dev/null
 }
 trap cleanup EXIT
 
 docker cp "${container_id}:/usr/local/nginx/modules/${MODULE_NAME}" "${MODULES_DIR}/${MODULE_NAME}"
+docker cp "${container_id}:${BUILD_METADATA_DIR}/nginx-package-version.txt" "${metadata_dir}/nginx-package-version.txt"
+docker cp "${container_id}:${BUILD_METADATA_DIR}/nginx-source-version.txt" "${metadata_dir}/nginx-source-version.txt"
+docker cp "${container_id}:${BUILD_METADATA_DIR}/nginx-abi-depends.txt" "${metadata_dir}/nginx-abi-depends.txt"
+
+NGINX_PACKAGE_VERSION="$(tr -d '\r\n' < "${metadata_dir}/nginx-package-version.txt")"
+NGINX_SOURCE_VERSION="$(tr -d '\r\n' < "${metadata_dir}/nginx-source-version.txt")"
+NGINX_ABI_DEPENDS="$(tr -d '\r\n' < "${metadata_dir}/nginx-abi-depends.txt")"
+
+if [ -z "${NGINX_PACKAGE_VERSION}" ] || [ -z "${NGINX_SOURCE_VERSION}" ] || [ -z "${NGINX_ABI_DEPENDS}" ]; then
+    echo "Failed to determine NGINX metadata for ${VERSION_CODENAME}" >&2
+    exit 1
+fi
+
+echo "Detected NGINX package version for ${DISTRO}:${VERSION_CODENAME}: ${NGINX_PACKAGE_VERSION}"
+echo "Using NGINX source version: ${NGINX_SOURCE_VERSION}"
+echo "Using NGINX ABI dependency: ${NGINX_ABI_DEPENDS}"
 
 cp "${SCRIPT_DIR}/scripts/postinst" "${DEBIAN_DIR}/postinst"
 cp "${SCRIPT_DIR}/scripts/prerm" "${DEBIAN_DIR}/prerm"
@@ -99,7 +120,7 @@ fpm \
   --version "${PACKAGE_VERSION}" \
   --iteration "${ITERATION}~${VERSION_CODENAME}" \
   --architecture "${ARCH_DEB}" \
-  --depends "${NGINX_ABI}" \
+  --depends "${NGINX_ABI_DEPENDS}" \
   --depends "${LIBC_DEPENDS}" \
   --description "${DESCRIPTION}" \
   --url "${PACKAGE_URL}" \

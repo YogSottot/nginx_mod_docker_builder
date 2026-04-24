@@ -1,0 +1,5 @@
+libnginx-mod-http-zstd (0.1.1-1.gbpf4ba115) unstable; urgency=medium
+
+* Bugfix: bugfix: fix module order to avoid taking effect before other modules such as sub filter module (#31)
+
+ -- Alex Zhang <zchao1995@gmail.com>  Mon, 22 Apr 2024 14:51:11 +0100

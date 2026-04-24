@@ -35,12 +35,12 @@ export ARCH_DEB
 export ARCH_RPM
 
 .PHONY: all deb rpm \
-	debian-12 debian-13 ubuntu-24.04 \
+	debian-12 debian-13 ubuntu-24.04 ubuntu-26.04 \
 	rpm-generic repo-rpm clean print-env
 
 all: deb rpm
 
-deb: debian-12 debian-13 ubuntu-24.04
+deb: debian-12 debian-13 ubuntu-24.04 ubuntu-26.04
 
 debian-12:
 	DISTRO=debian VERSION_CODENAME=bookworm ./scripts/deb.sh
@@ -50,6 +50,9 @@ debian-13:
 
 ubuntu-24.04:
 	DISTRO=ubuntu VERSION_CODENAME=noble ./scripts/deb.sh
+
+ubuntu-26.04:
+	DISTRO=ubuntu VERSION_CODENAME=resolute ./scripts/deb.sh
 
 #rpm: rpm-generic repo-rpm
 rpm: rpm-generic
