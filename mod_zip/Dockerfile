@@ -13,8 +13,8 @@ ARG NGINX_PACKAGE=nginx-core
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends ${BUILD_DEPS} "${NGINX_PACKAGE}" \
-  && rm -rf /var/lib/apt/lists/*
+RUN find /etc/apt/sources.list* -type f -print0 | xargs -0 sed -i 's/^Types: deb$/Types: deb deb-src/' \
+  && apt-get update && apt-get install -y --no-install-recommends ${BUILD_DEPS} "${NGINX_PACKAGE}"
 
 RUN mkdir -p "${BUILD_DIR}" \
   && nginx_package_version="$(dpkg-query -W -f='${Version}\n' "${NGINX_PACKAGE}")" \
@@ -32,10 +32,7 @@ RUN mkdir -p "${BUILD_DIR}" \
   && printf '%s\n' "${nginx_abi_dep}" > "${BUILD_DIR}/nginx-abi-depends.txt"
 
 RUN cd "${BUILD_DIR}" \
-  && NGINX_SOURCE_VERSION="$(cat "${BUILD_DIR}/nginx-source-version.txt")" \
-  && wget "https://nginx.org/download/nginx-${NGINX_SOURCE_VERSION}.tar.gz" \
-  && tar zxf "nginx-${NGINX_SOURCE_VERSION}.tar.gz" \
-  && rm "nginx-${NGINX_SOURCE_VERSION}.tar.gz"
+  && apt source nginx
 
 RUN cd "${BUILD_DIR}" \
   && git clone --depth 2 --recursive "${SOURCE_REPO_URL}" "${SOURCE_DIR}" \

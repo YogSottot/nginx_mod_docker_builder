@@ -2,6 +2,10 @@
 https://github.com/evanmiller/mod_zip  
 https://github.com/gabihodoroaga/nginx-ntlm-module  
 https://github.com/tokers/zstd-nginx-module  
+https://github.com/leev/ngx_http_geoip2_module
+
+GeoIP2 for AlmaLinux 9 / AppStream nginx 1.26.3: run `make -C mod_geoip2 almalinux-9`.
+See [build and installation instructions](mod_geoip2/README.md).
 
 A set of dockerfiles and scripts to build a zip / ntlm / zstd module for nginx. 
 To build, run ```debian-12.sh``` or ```ubuntu-24.04.sh``` script.  

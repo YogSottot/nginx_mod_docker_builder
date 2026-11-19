@@ -1,0 +1,75 @@
+---
+- name: Install bx-nginx on EL7
+  hosts: bx_nginx
+  become: true
+  gather_facts: true
+  serial: 1
+  any_errors_fatal: true
+
+  vars:
+    bx_nginx_source_version: >-
+      {{ lookup('ansible.builtin.ini', 'BX_NGINX_VERSION',
+                type='properties', file=playbook_dir ~ '/.env') }}
+    bx_nginx_rpm: >-
+      {{ playbook_dir }}/../rpm/centos-7/x86_64/bx-nginx-{{
+         bx_nginx_source_version | regex_replace('\.el9$', '.el7') }}.x86_64.rpm
+    bx_nginx_remote_rpm: /var/tmp/bx-nginx.el7.rpm
+
+  pre_tasks:
+    - name: Require an EL7 x86_64 server with systemd
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['os_family'] == 'RedHat'
+          - ansible_facts['distribution_major_version'] == '7'
+          - ansible_facts['architecture'] == 'x86_64'
+          - ansible_facts['service_mgr'] == 'systemd'
+        fail_msg: >-
+          This playbook requires EL7 x86_64 with systemd.
+          Detected {{ ansible_facts['distribution'] }}
+          {{ ansible_facts['distribution_version'] }}
+          {{ ansible_facts['architecture'] }}.
+
+    - name: Check the RPM on the control machine
+      ansible.builtin.stat:
+        path: "{{ bx_nginx_rpm }}"
+      delegate_to: localhost
+      become: false
+      register: bx_nginx_local_rpm
+
+    - name: Require a built RPM
+      ansible.builtin.assert:
+        that:
+          - bx_nginx_local_rpm.stat.isreg | default(false)
+        fail_msg: "RPM not found: {{ bx_nginx_rpm }}. Run make -C bx_nginx centos-7 first."
+
+  tasks:
+    - name: Copy the RPM to the server
+      ansible.builtin.copy:
+        src: "{{ bx_nginx_rpm }}"
+        dest: "{{ bx_nginx_remote_rpm }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install the locally built RPM
+      ansible.builtin.yum:  # noqa fqcn[action-core] -- EL7 uses yum with Python 2.7, not dnf.
+        name: "{{ bx_nginx_remote_rpm }}"
+        state: present
+        disable_gpg_check: true
+
+    - name: Reload systemd units
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Validate nginx configuration before restarting
+      ansible.builtin.command:
+        argv:
+          - /usr/sbin/nginx
+          - -t
+      changed_when: false
+      check_mode: false
+
+    - name: Restart nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
