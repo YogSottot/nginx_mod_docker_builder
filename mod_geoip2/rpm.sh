@@ -38,13 +38,15 @@ docker cp "${container_id}:/out/." "${STAGE_DIR}/"
 docker cp "${container_id}:/usr/share/tmp/nginx-package-version.txt" "${metadata_dir}/nginx-package-version.txt"
 NGINX_PACKAGE_VERSION="$(tr -d '\r\n' < "${metadata_dir}/nginx-package-version.txt")"
 test -n "${NGINX_PACKAGE_VERSION}"
+# Keep Epoch:Version, but allow any distribution Release of this nginx version.
+NGINX_DEPENDS_VERSION="${NGINX_PACKAGE_VERSION%-*}"
 
 fpm --force -s dir -t rpm -C "${STAGE_DIR}" \
     --name "${PACKAGE_NAME}" --version "${MOD_GEOIP2_VERSION}" \
     --iteration "${ITERATION}.el9" --architecture "${ARCH_RPM}" \
     --license "${PACKAGE_LICENSE}" --url "${PACKAGE_URL}" --maintainer "${MAINTAINER}" \
     --description "GeoIP2 HTTP module for AlmaLinux 9 AppStream nginx ${NGINX_VERSION}" \
-    --category httpd --depends "nginx-core = ${NGINX_PACKAGE_VERSION}" \
+    --category httpd --depends "nginx-core = ${NGINX_DEPENDS_VERSION}" \
     --depends 'libmaxminddb.so.0()(64bit)' --depends 'libc.so.6()(64bit)' \
     --rpm-use-file-permissions --rpm-user root --rpm-group root \
     --package "${OUTPUT_DIR}/${PACKAGE_NAME}-${MOD_GEOIP2_VERSION}-${ITERATION}.el9.${ARCH_RPM}.rpm" usr/

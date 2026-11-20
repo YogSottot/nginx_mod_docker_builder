@@ -15,14 +15,16 @@ RPM появится в `../rpm/almalinux-9/x86_64/`, файлы пакета �
 Сборщик устанавливает nginx из репозитория ОС, берёт исходники nginx той же
 версии с nginx.org и выполняет `make modules` с `--with-compat`.
 Во время сборки `nginx -t` проверяет загрузку модуля бинарным файлом из ОС.
-RPM зависит от точной версии и релиза установленного `nginx-core` и libmaxminddb.
-После обновления nginx пакет следует пересобрать.
+RPM зависит от версии `nginx-core` без привязки к релизу пакета
+(например, `nginx-core = 2:1.26.3`) и libmaxminddb.
+Обновления релиза пакета в пределах nginx 1.26.3 не требуют пересборки модуля.
+При изменении самой версии nginx модуль следует пересобрать.
 
 Установка на сервере:
 
 ```sh
 sudo dnf module enable nginx:1.26
-sudo dnf install ./nginx-mod-http-geoip2-3.4-1.el9.x86_64.rpm
+sudo dnf install ./nginx-mod-http-geoip2-3.4-2.el9.x86_64.rpm
 sudo nginx -t
 sudo systemctl reload nginx
 ```
