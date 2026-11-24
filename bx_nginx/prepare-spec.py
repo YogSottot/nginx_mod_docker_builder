@@ -24,8 +24,10 @@ spec = spec.replace('openssl-3.5.9', 'openssl-' + openssl_version)
 spec = re.sub(r'^.*--with-http_v3_module.*\n', '', spec, flags=re.M)
 # The standalone CMake is installed under /opt, outside the RPM database.
 spec = re.sub(r'^BuildRequires:\s*cmake\s*$', '', spec, flags=re.M)
-# Packages must run on other x86_64 EL7 machines as well.
-spec = spec.replace('-march=native -mtune=native ', '')
+# GCC 4.8 does not understand newer ISA levels such as x86-64-v2.
+# Use the baseline x86_64 ISA and avoid tuning for the build machine.
+spec = re.sub(r'-march=[A-Za-z0-9_-]+', '-march=x86-64', spec)
+spec = re.sub(r'-mtune=[A-Za-z0-9_-]+', '-mtune=generic', spec)
 # GCC 4.8 defaults to GNU89; the current Brotli sources require C99.
 spec = spec.replace('-DCMAKE_C_FLAGS="', '-DCMAKE_C_FLAGS="-std=gnu99 ')
 # The EL9 SRPM does not include push-stream. Add its source and enable it

@@ -8,11 +8,11 @@ cd bx_nginx
 make centos-7
 ```
 
-Настройки находятся в `.env`. `BX_NGINX_VERSION=1.30.7-0.el9` задаёт SRPM:
-`https://repo.bitrix.info/dnf/SRPMS/bx-nginx-1.30.7-0.el9.src.rpm`.
+Настройки находятся в `.env`. `BX_NGINX_VERSION=1.30.8-1.el9` задаёт SRPM:
+`https://repo.bitrix.info/dnf/SRPMS/bx-nginx-1.30.8-1.el9.src.rpm`.
 `BUILD_DEBUG=1` дополнительно собирает пакет `bx-nginx-debug`.
 
-Результат: `../rpm/centos-7/x86_64/bx-nginx-1.30.7-0.el7.x86_64.rpm`.
+Результат: `../rpm/centos-7/x86_64/bx-nginx-1.30.8-1.el7.x86_64.rpm`.
 Адаптированный исходный RPM сохраняется в подкаталоге `SRPMS/`.
 
 Сборщик скачивает SRPM самостоятельно. Локальные каталоги распакованных
@@ -32,8 +32,10 @@ HTTP/3 отключается, HTTP/2 остаётся включённым. С�
 Для Brotli используется имеющийся `ngx_brotli-1.2.1.tgz`, отдельный архив
 `ngx_brotli.tgz` не нужен. PageSpeed не добавляется.
 Конфигурация, systemd unit, зависимости и скрипты установки
-берутся из исходного spec. Флаги `-march=native`/`-mtune=native` убраны,
-чтобы пакет не привязывался к процессору сборочной машины.
+берутся из исходного spec. Флаги архитектуры заменяются на
+`-march=x86-64 -mtune=generic`: это поддерживается GCC 4.8 из EL7 и не
+привязывает пакет к процессору сборочной машины. В частности,
+`-march=x86-64-v2` из нового spec GCC 4.8 не поддерживает.
 
 Репозитории CentOS 7 используются из Vault. Для сборки Brotli устанавливается
 CMake из официального бинарного архива, его версия также задаётся в `.env`.
@@ -63,7 +65,7 @@ Playbook сначала проверяет семейство RedHat, верси
 
 ```sh
 ansible-playbook -i /path/to/inventory.ini bx_nginx/deploy.yml \
-  -e bx_nginx_rpm=/absolute/path/to/bx-nginx-1.30.7-0.el7.x86_64.rpm
+  -e bx_nginx_rpm=/absolute/path/to/bx-nginx-1.30.8-1.el7.x86_64.rpm
 ```
 
 Локальный RPM не подписан, поэтому проверка GPG при его установке отключена.
